@@ -1,0 +1,22 @@
+{
+  "name": "chevron",
+  "description": "Command line utility for processing mustache templates",
+  "homepage": "https://github.com/openmason/chevron",
+  "version": "0.1.0",
+  "author": "el aras <openmason@gmail.com>",
+  "dependencies": {
+    "bigote"           : ">= 0.3.0",
+    "handy"            : ">= 0.0.13",
+    "optimist"         : ">= 0.6.1"
+  },
+  "devDependencies": {
+  },
+  "keywords": ["mustache", "template", "handlebars", "cli"],
+  "repository": {"type":"git", "url": "git://github.com/openmason/chevron"},
+  "main": "index",
+  "bin": { "chevron": "./bin/chevron" },
+  "scripts": {
+    "prepublish" : "npm prune"
+   },
+  "engines": { "node":">= 0.8.0" }
+}
