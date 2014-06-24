@@ -6,37 +6,87 @@
  *  - command line utility to convert mushtache templates
  */
 
-var optimist = require('optimist');
+var nopt = require('nopt')
+  , noptUsage = require("nopt-usage");
+
 var bigote = require('bigote');
 var handy = require('handy');
 var fs = require('fs');
+var path = require('path');
 
 // chevron -i inpfile -d datafile
 //
 var _versionString = 'chevron v'+handy.getVersion();
-var argv = optimist
-  .usage(_versionString + '\nRun mushtache template engine.')
-  .options({
-    inpfile : {
-      demand : true,
-      alias : 'i',
-      description : 'Input mushtache template file'
-    },
-    datafile : {
-      demand : true,
-      alias : 'd',
-      description : 'Input data file'
-    }
-  })
-  .argv;
+var _helpString = 'utility to process mushtache templates.';
+
+var knownOpts = {
+  "data" : path,
+  "env"  : Boolean,
+  "input": [path, Array],
+  "output": path,
+  "help" : Boolean
+}, shortHands = {
+  "d"  : "--data",
+  "i"  : "--input",
+  "o"  : "--output",
+  "e"  : ["--env", "true"],
+  "h"  : "--help"
+}, description = {
+  "data" : "Input data file",
+  "input": "Input mushtache template file",
+  "output": "Output file - defaults to console",
+  "env"  : "Use environment as input data"
+}, defaults = {
+  "env" : false
+}, usage  =noptUsage(knownOpts, shortHands, description, defaults),
+  parsed = nopt(knownOpts, shortHands, process.argv, 2);
+
+function dumpUsage() {
+  console.log(_versionString);
+  console.log(_helpString);
+  console.log(usage);
+}
+
+nopt.invalidHandler = function (k, v, types, data) {
+  console.log('Invalid arg ('+k+')/value('+v+') passed.');
+  dumpUsage();
+  process.exit(1);
+}
+
+if(parsed.help || !parsed.input || !(parsed.env || parsed.data)) {
+  dumpUsage();
+  process.exit(0);
+}
+// check if all input files exist
+for(var i=0;i<parsed.input.length;i++) {
+  if(!fs.existsSync(parsed.input[i])) {
+    console.log('Missing input file: ' + parsed.input[i]);
+    dumpUsage();
+    process.exit(1);
+  }
+}
+
+// check if output file doesn't exist
+if(parsed.output && fs.existsSync(parsed.output)) {
+  console.log('Output file present: ' + parsed.output);
+  dumpUsage();
+  process.exit(1);
+}
 
 // load the context (data file)
-var context=JSON.parse(fs.readFileSync(argv.datafile, 'utf-8'));
+var context=parsed.env?process.env:JSON.parse(fs.readFileSync(parsed.data, 'utf-8'));
 
 // compile the template and render it
-var tmpl = bigote.load(fs.readFileSync(argv.inpfile, 'utf-8'));
+// @todo: loop thru the input files
+var tmpl = bigote.load(fs.readFileSync(parsed.input[0], 'utf-8'));
+var outStr = bigote.render(tmpl, context); 
 
 //@todo: Need to write to the output file
-console.log(bigote.render(tmpl, context));
+if(parsed.output) {
+  fs.writeFileSync(parsed.output, outStr, 'utf-8');
+} else {
+  console.log(outStr);
+}
+process.exit(0);
 
 // -- EOF

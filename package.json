@@ -2,12 +2,13 @@
   "name": "chevron",
   "description": "Command line utility for processing mustache templates",
   "homepage": "https://github.com/openmason/chevron",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "el aras <openmason@gmail.com>",
   "dependencies": {
-    "bigote"           : ">= 0.3.0",
+    "nopt"             : ">= 3.0.0",
+    "nopt-usage"       : ">= 0.1.0",
     "handy"            : ">= 0.0.13",
-    "optimist"         : ">= 0.6.1"
+    "bigote"           : ">= 0.3.0"
   },
   "devDependencies": {
   },
